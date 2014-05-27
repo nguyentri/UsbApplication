@@ -210,20 +210,22 @@ void EXTI1_IRQHandler(void)
 }
 
 /**
-  * @brief  EXTI0_IRQHandler
-  *         This function handles External line 0 interrupt request.
+  * @brief  This function handles External line 0 interrupt request.
   * @param  None
   * @retval None
   */
 void EXTI0_IRQHandler(void)
 {
-  if (EXTI_GetITStatus(EXTI_Line0) != RESET)
+  if(EXTI_GetITStatus(EXTI_Line0) != RESET)
   {
-    /* Download On Going: Set Blue LED ON */
-    STM_EVAL_LEDOn(LED6); 
+    /* Toggle LED4 */
+    STM_EVAL_LEDToggle(LED4);
+    
+    /* Clear the EXTI line 0 pending bit */
     EXTI_ClearITPendingBit(EXTI_Line0);
   }
 }
+
 /**
   * @brief  TIM2_IRQHandler
   *         This function handles Timer2 Handler.

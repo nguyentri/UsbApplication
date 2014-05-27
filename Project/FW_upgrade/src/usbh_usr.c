@@ -346,7 +346,7 @@ int USBH_USR_MSC_Application(void)
     EXTI_Init(&EXTI_InitStructure);
     
     /* Writes Flash memory */
-//    COMMAND_DOWNLOAD();
+    COMMAND_DOWNLOAD();
     
     /* Initialize User_Button on STM32F4-Discovery in the GPIO Mode ----------*/
     STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_GPIO);

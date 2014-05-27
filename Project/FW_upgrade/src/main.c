@@ -24,6 +24,7 @@
 #include "usbh_usr.h"
 #include "usbh_msc_core.h"
 #include "flash_if.h"
+#include "parameters.h"
 
 /** @addtogroup STM32F4-Discovery_FW_Upgrade
   * @{
@@ -53,13 +54,28 @@ int main(void)
 {
   /* STM32 evalboard user initialization */
   BSP_Init();
-
+	
   /* Flash unlock */
   FLASH_If_FlashUnlock();
+	
+	/* Initialize parameter block */
+	v_PARAM_Init();	
   
-  /* Test if User button on the Discovery kit is pressed */
-  if (STM_EVAL_PBGetState(BUTTON_USER) == Bit_RESET)
-  {
+	if(u32_PARAM_Get_Value(PARAM_ID_FW_UPDATE_FLAG) != 0)
+	{
+		/*Clear up fwupdate flag */
+		v_PARAM_Set_Value(PARAM_ID_FW_UPDATE_FLAG, PARAM_FW_UPDATE_FLAG_NONE); 
+		/* Init Host Library */
+		USBH_Init(&USB_OTG_Core, USB_OTG_FS_CORE_ID, &USB_Host, &USBH_MSC_cb, &USR_Callbacks);
+    
+		while (1)
+		{
+    /* Host Task handler */
+    USBH_Process(&USB_OTG_Core, &USB_Host);
+		}	
+	}
+	else
+	{
     /* Check Vector Table: Test if user code is programmed starting from address 
        "APPLICATION_ADDRESS" */
     if (((*(__IO uint32_t*)APPLICATION_ADDRESS) & 0x2FFE0000 ) == 0x20000000)
@@ -71,15 +87,17 @@ int main(void)
       __set_MSP(*(__IO uint32_t*) APPLICATION_ADDRESS);
       Jump_To_Application();
     }
-  }
-  
-  /* Init Host Library */
-  USBH_Init(&USB_OTG_Core, USB_OTG_FS_CORE_ID, &USB_Host, &USBH_MSC_cb, &USR_Callbacks);
+		else
+		{
+			/* Init Host Library */
+			USBH_Init(&USB_OTG_Core, USB_OTG_FS_CORE_ID, &USB_Host, &USBH_MSC_cb, &USR_Callbacks);
     
-  while (1)
-  {
-    /* Host Task handler */
-    USBH_Process(&USB_OTG_Core, &USB_Host);
+			while (1)
+			{
+				/* Host Task handler */
+				USBH_Process(&USB_OTG_Core, &USB_Host);
+			}				
+		}
   }
 }
 
