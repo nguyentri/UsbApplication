@@ -42,6 +42,10 @@ pFunction Jump_To_Application;
 uint32_t JumpAddress;
 
 /* Private function prototypes -----------------------------------------------*/
+void initTimer5(void);
+
+
+
 /* Private functions ---------------------------------------------------------*/
 
 /**
@@ -60,7 +64,12 @@ int main(void)
 	
 	/* Initialize parameter block */
 	v_PARAM_Init();	
-  
+	
+	STM_EVAL_LEDInit(LED5);
+  STM_EVAL_LEDOn(LED5);
+	
+	initTimer5();
+	
 	if(u32_PARAM_Get_Value(PARAM_ID_FW_UPDATE_FLAG) != 0)
 	{
 		/*Clear up fwupdate flag */
@@ -80,6 +89,9 @@ int main(void)
        "APPLICATION_ADDRESS" */
     if (((*(__IO uint32_t*)APPLICATION_ADDRESS) & 0x2FFE0000 ) == 0x20000000)
     {
+			 TIM_DeInit(TIM5);
+			//TIM_DeInit(TIM2);
+			
       /* Jump to user application */
       JumpAddress = *(__IO uint32_t*) (APPLICATION_ADDRESS + 4);
       Jump_To_Application = (pFunction) JumpAddress;
@@ -100,6 +112,96 @@ int main(void)
 		}
   }
 }
+
+
+
+/*
+** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+**
+**   Function    : void initTimer5(void)
+**
+**   Arguments   : n/a
+**      
+**   Return      : n/a 
+** 
+**   Description : timer 3 interrupt routine to calculate ADC average values.
+**
+**   Notes       : restrictions, odd modes
+**
+**   Author      : Nguyen Trong Tri
+**
+**   Date        : 2012/02/15 
+**
+** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*/	
+void initTimer5(void)
+{
+   /* System clock */
+   unsigned int gTimerClock;
+
+   unsigned long u32_timer_reload;
+
+   TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+   NVIC_InitTypeDef NVIC_InitStructure;
+
+   gTimerClock = SystemCoreClock / 2;
+   u32_timer_reload =  gTimerClock;
+   /* TIM5 clock enable */
+   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE);
+
+   /* Time base configuration */
+   TIM_TimeBaseStructure.TIM_Period = u32_timer_reload / 1000 - 1;
+   TIM_TimeBaseStructure.TIM_Prescaler = 1999;
+   TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Down;
+   TIM_TimeBaseInit(TIM5, &TIM_TimeBaseStructure);
+
+   /* Enable the TIM5 global Interrupt */
+   NVIC_InitStructure.NVIC_IRQChannel = TIM5_IRQn;
+   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 10;
+   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+   NVIC_Init(&NVIC_InitStructure);
+
+   /* Enable Timer 2 interrupt. */
+   TIM_ClearITPendingBit(TIM5, TIM_IT_Update);
+   TIM_ITConfig(TIM5, TIM_IT_Update, ENABLE);
+
+   /* Start counting */
+   TIM_Cmd(TIM5, ENABLE);
+}
+
+/*
+** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+**
+**   Function    : void TIM5_IRQHandler(void)
+**
+**   Arguments   : n/a
+**      
+**   Return      : n/a 
+** 
+**   Description : timer 3 interrupt routine to calculate ADC average values.
+**
+**   Notes       : restrictions, odd modes
+**
+**   Author      : Nguyen Trong Tri
+**
+**   Date        : 2012/02/15 
+**
+** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*/	
+void TIM5_IRQHandler(void)
+{
+   if (TIM_GetITStatus(TIM5, TIM_IT_Update ) != RESET)
+   {
+      TIM_ClearITPendingBit(TIM5, TIM_IT_Update );    // Reset Flag
+			      /* Toggle Led pin. */
+      STM_EVAL_LEDToggle(LED5);
+   }
+}
+
+
+
 
 #ifdef USE_FULL_ASSERT
 /**
