@@ -351,6 +351,7 @@ static void v_Led_Init (void)
 */
 void v_Blink_Led_Valid_Packet_Scale (void)
 {
+
    /* Toggle Led pin. */
    GPIO_ToggleBits(LED_SCALE_GPIO_PORT, LED_SCALE_GPIO_PIN);
    vTaskDelay(200);
@@ -373,7 +374,7 @@ void v_Blink_Led_Valid_Packet_Scale (void)
 static void v_Blink_Led_Code_Task  (void *pvParameters)
 {
    for (;;)
-   {		 		 
+	 {
       /*Delay 1s. */
       vTaskDelay(BLINK_LED_TASK_DELAY);
       /* Toggle Led pin. */

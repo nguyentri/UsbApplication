@@ -26,6 +26,7 @@
 #include "usbh_usr.h"
 #include "stm32f4xx_it.h"
 #include "retarget.h"
+#include "fwupgrade.h"
 
 /* Scheduler includes */
 #include "FreeRTOS.h"

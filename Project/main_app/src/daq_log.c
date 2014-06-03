@@ -22,6 +22,7 @@
 #include "ff.h"
 #include "daq_log.h"
 #include "adc_dma.h"
+#include "sub_dev_rx.h"
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
@@ -38,7 +39,7 @@
 /*  
 * Local variable
 */
-static const char l_logHeader_s[] = "Date; Time; Votage A; Voltage B; Temperature Main CPU; Temperature Device; Humidity Environment\r\n";
+static const char l_logHeader_s[] = "Date; Time; Temperature Main CPU; Temperature  C Sub Device; Temperature F Sub Device ; Votage A; Voltage B; Voltage C\r\n";
 
 /* File name of data aquition log file. */
 static const char l_logFname_s[] ="mlog.csv";
@@ -110,10 +111,10 @@ void v_LOG_Task (void)
 				 {
 					 s32_Create_New_File();
 				 }
-		   /* Set task running flag is true. */
-		   //v_Set_Task_Running_Flag(LOG_TASK_IDX, __TRUE);
-		   /* Task delay 1s.*/
-		   vTaskDelay(LOG_TASK_DELAY*5);				 
+					/* Set task running flag is true. */
+						//v_Set_Task_Running_Flag(LOG_TASK_IDX, __TRUE);
+					/* Task delay 1s.*/
+					vTaskDelay(LOG_TASK_DELAY*9);				 
 		   }
 		}
 	}
@@ -184,16 +185,20 @@ int32_t s32_Put_Meas_To_Log_File(void)
 					// semaphore.
 					xSemaphoreGive( g_rtc_mutex );
 				}
-			/* Voltage  */
-			sprintf(str_temp,"%.3f;%.3f;",
-                Get_Meas_Data_f(MEAS_VOLTAGE_A), Get_Meas_Data_f(MEAS_VOLTAGE_B));
+				
+			v_GetData();	
+
+			/* Top Oil Temperature, Bottom Oil Temperature, Ambient Temperature and Humidty. */
+			sprintf(str_temp,"%.3f;%.3f;%.3f;",
+						flt_ADC_Get_Temp(), f_Get_TempIntSS(0), f_Get_TempIntSS(1));
+			f_puts((const char *)str_temp, &l_log_fil);
+				
+				/* Voltage  */
+			sprintf(str_temp,"%.3f;%.3f;%.3f\r\n",
+                f_GetMeas(0), f_GetMeas(1), f_GetMeas(2));
 			f_puts((const char *)str_temp, &l_log_fil);
 			memset(str_temp, 0, 30);
-				
-			/* Top Oil Temperature, Bottom Oil Temperature, Ambient Temperature and Humidty. */
-			sprintf(str_temp,"%.3f;%.3f;%.3f\r\n",
-						flt_ADC_Get_Temp(), 40.1, 80.5);
-			f_puts((const char *)str_temp, &l_log_fil);
+							
 				
 			memset(str_temp, 0, 30);
 			
