@@ -333,7 +333,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>2</Optim>
+            <Optim>3</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -349,7 +349,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER, USE_USB_OTG_FS, STM32F4XX, __FPU_PRESENT=1</Define>
               <Undefine></Undefine>
-              <IncludePath>..\inc;..\src\rtc;..\src\adc_dma;..\src\cli;..\MDK-ARM;..\..\..\Libraries\CMSIS\ST\STM32F4xx\Include;..\..\..\Libraries\CMSIS\Include;..\..\..\Utilities\Third_Party\fat_fs\inc;..\..\..\Libraries\STM32F4xx_StdPeriph_Driver\inc;..\..\..\Libraries\STM32_USB_HOST_Library\Core\inc;..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\inc;..\..\..\Libraries\STM32_USB_OTG_Driver\inc;..\..\..\Utilities\STM32F4-Discovery;..\..\..\Utilities\Third_Party\FreeRTOS\Source\include;..\..\..\Utilities\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM4F</IncludePath>
+              <IncludePath>..\inc;..\src\rtc;..\src\adc_dma;..\src\cli;..\MDK-ARM;..\src\parameters;..\src\fwupgrade;..\src\sub_dev;..\..\..\Libraries\CMSIS\ST\STM32F4xx\Include;..\..\..\Libraries\CMSIS\Include;..\..\..\Utilities\Third_Party\fat_fs\inc;..\..\..\Libraries\STM32F4xx_StdPeriph_Driver\inc;..\..\..\Libraries\STM32_USB_HOST_Library\Core\inc;..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\inc;..\..\..\Libraries\STM32_USB_OTG_Driver\inc;..\..\..\Utilities\STM32F4-Discovery;..\..\..\Utilities\Third_Party\FreeRTOS\Source\include;..\..\..\Utilities\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM4F</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -426,14 +426,14 @@
               <FilePath>..\src\usbh_usr.c</FilePath>
             </File>
             <File>
-              <FileName>FreeRTOSConfig.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\FreeRTOSConfig.h</FilePath>
-            </File>
-            <File>
               <FileName>retarget.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\retarget.c</FilePath>
+            </File>
+            <File>
+              <FileName>FreeRTOSConfig.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\inc\FreeRTOSConfig.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -706,16 +706,6 @@
           <GroupName>cli</GroupName>
           <Files>
             <File>
-              <FileName>assem_test_info.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\cli\assem_test_info.c</FilePath>
-            </File>
-            <File>
-              <FileName>board_test.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\cli\board_test.c</FilePath>
-            </File>
-            <File>
               <FileName>cli.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\cli\cli.c</FilePath>
@@ -730,10 +720,40 @@
               <FileType>1</FileType>
               <FilePath>..\src\cli\cmdline.c</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>fwupgrade</GroupName>
+          <Files>
             <File>
-              <FileName>raw_meas.c</FileName>
+              <FileName>fwupgrade.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\cli\raw_meas.c</FilePath>
+              <FilePath>..\src\fwupgrade\fwupgrade.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>parameters</GroupName>
+          <Files>
+            <File>
+              <FileName>eeprom.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\parameters\eeprom.c</FilePath>
+            </File>
+            <File>
+              <FileName>parameters.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\parameters\parameters.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>sub_dev</GroupName>
+          <Files>
+            <File>
+              <FileName>sub_dev_rx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\sub_dev\sub_dev_rx.c</FilePath>
             </File>
           </Files>
         </Group>

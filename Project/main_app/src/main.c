@@ -31,6 +31,7 @@
 #include "cli.h"
 #include "parameters.h"
 #include "fwupgrade.h"
+#include "sub_dev_rx.h"
 
 /* USB Lib. */
 #include "usbh_core.h"
@@ -55,7 +56,7 @@
 #define LED_SCALE_GPIO_PIN                        GPIO_Pin_0
 
 #define BLINK_LED_TASK_DELAY                      (portTickType)(1000 / portTICK_RATE_MS)
-#define BLINK_LED_TASK_STACK_SIZE                 (configMINIMAL_STACK_SIZE*8)
+#define BLINK_LED_TASK_STACK_SIZE                 (configMINIMAL_STACK_SIZE)
 #define BLINK_LED_TASK_PRIORITY                   (tskIDLE_PRIORITY + 1)
 
 
@@ -238,6 +239,8 @@ static void v_Initial_Func_Task (void *pvParameters)
 		 
 		  v_FW_Main_CPU_Update_Init();
 		
+		  v_SubDeviceUARTInit(115200);
+		 
       /* Init Display module. */
 			// v_Display_Init();
    
