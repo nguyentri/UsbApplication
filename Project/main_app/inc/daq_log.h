@@ -15,3 +15,6 @@ void v_LOG_Task (void);
 int32_t s32_Put_Meas_To_Log_File(void);
 int32_t s32_Delete_Log_File(char* psDelLogFname);
 int32_t s32_Create_New_File(void);
+uint8_t BCDToDecimal (uint8_t bcdByte);
+
+

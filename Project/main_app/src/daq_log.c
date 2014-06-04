@@ -23,6 +23,7 @@
 #include "daq_log.h"
 #include "adc_dma.h"
 #include "sub_dev_rx.h"
+#include "parameters.h"
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
@@ -39,13 +40,14 @@
 /*  
 * Local variable
 */
-static const char l_logHeader_s[] = "Date; Time; Temperature Main CPU; Temperature  C Sub Device; Temperature F Sub Device ; Votage A; Voltage B; Voltage C\r\n";
+static const char l_logHeader_s[] = "Date; Time; Temperature Main CPU; Temperature C Sub-Device; Temperature F Sub-Device ; Votage A; Voltage B; Voltage C\r\n";
 
 /* File name of data aquition log file. */
 static const char l_logFname_s[] ="mlog.csv";
 
 /* File structure of log file. */
 static FIL l_log_fil;
+static uint16_t u16_log_file_idx = 0;
 
 bool b_log_new_line_flag = TRUE;
 
@@ -75,6 +77,10 @@ extern RTC_AlarmTypeDef RTC_AlarmStructure;
 void v_LOG_Task (void)
 {   
 	FRESULT res;
+	
+	   /* Get log file index. */
+   u16_log_file_idx = u32_PARAM_Get_Value(PARM_ID_LOG_FILE_IDX);
+	
 	/* Open/Create csv log file. */
 	res = f_open(&l_log_fil, (const char *)l_logFname_s, FA_READ | FA_WRITE| FA_OPEN_ALWAYS);
 	if (res == FR_OK)
@@ -92,29 +98,29 @@ void v_LOG_Task (void)
 			/* Infinite loop to write measurements to log file. */
 			for(;;)
 			{ 
-				 /* Wait for new line flag is set. */
-				 if ( b_log_new_line_flag == TRUE)
-				 {
-					/* Clear  new line flag. */
-					//b_log_new_line_flag = FALSE;
-  
-					/* Set initial measurement is true. */
-					/* Put measurements to log file. */
-					if (s32_Put_Meas_To_Log_File() != 0)
-					{
-					   /* Set error code is FATTFS or SD card error. */
-					   //s32_Set_Error(FATFS_INTERNAL_FUNCTION_ERROR, 0x00);
-					}   
-				 }    
-				  /* Check log limit time. */
-				 if (f_size(&l_log_fil) >= 5120UL)
-				 {
-					 s32_Create_New_File();
-				 }
 					/* Set task running flag is true. */
 						//v_Set_Task_Running_Flag(LOG_TASK_IDX, __TRUE);
 					/* Task delay 1s.*/
-					vTaskDelay(LOG_TASK_DELAY*9);				 
+					vTaskDelay(LOG_TASK_DELAY);					
+				 /* Wait for new line flag is set. */
+				 if ((RTC_TimeStructure.RTC_Seconds == 0x00) || (RTC_TimeStructure.RTC_Seconds == 0x30))
+				 {
+						/* Clear  new line flag. */
+						//b_log_new_line_flag = FALSE;
+		
+						/* Set initial measurement is true. */
+						/* Put measurements to log file. */
+						if (s32_Put_Meas_To_Log_File() != 0)
+						{
+							 /* Set error code is FATTFS or SD card error. */
+							 //s32_Set_Error(FATFS_INTERNAL_FUNCTION_ERROR, 0x00);
+						} 
+										  /* Check log limit time. */
+						if (f_size(&l_log_fil) >= 1024UL)
+						{
+								s32_Create_New_File();
+						}		
+				 }    			 
 		   }
 		}
 	}
@@ -177,10 +183,10 @@ int32_t s32_Put_Meas_To_Log_File(void)
 						// shared resource.			
 						f_printf(&l_log_fil,
                   "%d/%d/%d;",
-                RTC_DateStructure.RTC_Month, RTC_DateStructure.RTC_Date,   RTC_DateStructure.RTC_Year);
+                BCDToDecimal(RTC_DateStructure.RTC_Month), BCDToDecimal(RTC_DateStructure.RTC_Date), BCDToDecimal(RTC_DateStructure.RTC_Year));
 						f_printf(&l_log_fil,
-                  "%d:%d:%d;",
-						RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds);
+                  "%02d:%02d:%02d;",
+						BCDToDecimal(RTC_TimeStructure.RTC_Hours), BCDToDecimal(RTC_TimeStructure.RTC_Minutes), BCDToDecimal(RTC_TimeStructure.RTC_Seconds));
 					// We have finished accessing the shared resource.  Release the 
 					// semaphore.
 					xSemaphoreGive( g_rtc_mutex );
@@ -280,10 +286,9 @@ int32_t s32_Create_New_File(void)
    /* Temporary file name. */
    char str_log_newly_filename[] ="logxxxx.csv";
  
-	 static uint16_t u16_log_file_idx = 0;
    /* Get file name. */
    sprintf(str_temp,"%04d", u16_log_file_idx);
-   strncpy(str_log_newly_filename + 4, str_temp, 4);
+   strncpy(str_log_newly_filename + 3, str_temp, 4);
  
    /* Open/Create csv log file. */
    res = f_unlink((const XCHAR*)str_log_newly_filename);
@@ -298,7 +303,7 @@ int32_t s32_Create_New_File(void)
          {
             u16_log_file_idx++;
             /* Save log file index to FRAM. */
-//            s32_PARM_Write(PARM_ID_LOG_FILE_IDX, (int32_t)u16_log_file_idx);
+            v_PARAM_Set_Value(PARM_ID_LOG_FILE_IDX, (int32_t)u16_log_file_idx);
          }
    
          if (u16_log_file_idx == 9999)
@@ -311,7 +316,7 @@ int32_t s32_Create_New_File(void)
          if (res == FR_OK)
          {
             /* Write header to csv new file. */
-            if (f_puts((const char *)l_logFname_s, &l_log_fil) != -1)
+            if (f_puts((const char *)l_logHeader_s, &l_log_fil) != -1)
             {
                res = f_close(&l_log_fil);
                if (res == FR_OK)
@@ -348,4 +353,10 @@ int32_t s32_Create_New_File(void)
       /* Set error code is fatfs remove file error. */
       return (-1);
    }
+}
+
+
+uint8_t BCDToDecimal (uint8_t bcdByte)
+{
+  return (((bcdByte & 0xF0) >> 4) * 10) + (bcdByte & 0x0F);
 }

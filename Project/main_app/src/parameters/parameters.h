@@ -50,7 +50,7 @@
 /* Parameter firmware update flag address. */
 #define PARAM_ID_FW_UPDATE_FLAG                3
 
-
+#define PARM_ID_LOG_FILE_IDX									16
 /*
 ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 **   PROTOTYPE SECTION

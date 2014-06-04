@@ -371,7 +371,7 @@ float flt_ADC_Get_Temp (void)
 	 t_adcAver_f = flt_Cal_Aver_Buffer (flt_temp_adc_buffer[MEAS_INT_TEMPSS_ID], AVER_ADC_BUFFER_SIZE);	
 	 /* Convert ADC value to temperture. */  
 	 Voltage = (t_adcAver_f *3300)/4095;
-	 temp = ((Voltage - (float)760)/(float)2.5) + 25;
+	 temp = ((Voltage - (float)760)/(float)2.5) - 15;
 	 return temp;		   
 }
 

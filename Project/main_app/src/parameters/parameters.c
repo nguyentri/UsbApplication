@@ -51,6 +51,7 @@
                                                ((uint32_t)1)) << 16) + \
                                              (uint16_t)(1))
 
+#define PARAM_LOG_IDX_DEFAULT							0
 
 /*
 ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -241,6 +242,9 @@ static void v_PARAM_Reset (void)
    
    /* Set defsault value for force fw update. */
    au32_PARAM[PARAM_ID_FW_UPDATE_FLAG] = PARAM_FW_UPDATE_FLAG_NONE;
+	
+	 au32_PARAM[PARM_ID_LOG_FILE_IDX] = PARAM_LOG_IDX_DEFAULT;
+	
 
    /* Save to Parameters Block. */
    u32_Save_PARAM(PARAM_ITEM_NUMBER, au32_PARAM);
